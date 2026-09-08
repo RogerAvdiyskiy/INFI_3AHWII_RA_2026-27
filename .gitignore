@@ -1,0 +1,6 @@
+*.db
+*.sqlite
+*.sqlite3
+.deno/
+.DS_Store
+.vscode/workspace.json

@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "run": "deno run --allow-read --allow-write main.ts",
+    "test": "deno test --allow-read"
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "singleQuote": false
+  }
+}
