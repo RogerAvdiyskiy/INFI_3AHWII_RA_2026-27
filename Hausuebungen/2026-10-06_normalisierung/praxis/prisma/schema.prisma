@@ -1,0 +1,81 @@
+// prisma/schema.prisma — Normalisierte 3NF-Modelle zur HÜ KM5-02 (2026-10-06)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ----------------------------------------------------------------------
+// Teil 2: Bestellung in 3NF (Auflösung von 1NF, 2NF und 3NF)
+// ----------------------------------------------------------------------
+
+// 3NF-Fix: Faktentabelle PLZ -> Ort (verhindert Update-, Insert- und Delete-Anomalien)
+model Plz {
+  plz          String       @id
+  ort          String
+  bestellungen Bestellung[]
+}
+
+// 2NF-Fix: Eigenständige Entität Track (Track-Daten hängen nur an id, nicht an Bestellung)
+model Track {
+  id                Int               @id @default(autoincrement())
+  titel             String
+  dauerSek          Int
+  bestellpositionen Bestellposition[]
+}
+
+// Haupttabelle Bestellung: Verweist nur noch auf Plz (3NF erfüllt)
+model Bestellung {
+  bestellNr  Int               @id
+  kunde      String
+  plz        String
+  plzRel     Plz               @relation(fields: [plz], references: [plz])
+  positionen Bestellposition[]
+}
+
+// 1NF & 2NF-Fix: Beziehungstabelle mit zusammengesetztem Primärschlüssel (bestellNr, trackId)
+model Bestellposition {
+  bestellNr  Int
+  trackId    Int
+  menge      Int        @default(1)
+  bestellung Bestellung @relation(fields: [bestellNr], references: [bestellNr], onDelete: Cascade)
+  track      Track      @relation(fields: [trackId], references: [id])
+
+  @@id([bestellNr, trackId])
+}
+
+// ----------------------------------------------------------------------
+// Teil 3: Eigene Quiz-Tabellen in 3NF
+// ----------------------------------------------------------------------
+
+// Quiz 1: Bank & Konto (transitive Kette iban -> blz -> bankname aufgelöst)
+model Bank {
+  blz      String  @id
+  bankname String
+  konten   Konto[]
+}
+
+model Konto {
+  iban    String @id
+  inhaber String
+  blz     String
+  bank    Bank   @relation(fields: [blz], references: [blz])
+}
+
+// Quiz 2: Klasse & Schüler (transitive Kette matrNr -> klasse -> sprecher aufgelöst)
+model Klasse {
+  klasse          String     @id
+  klassensprecher String
+  schueler        Schueler[]
+}
+
+model Schueler {
+  matrNr     Int    @id
+  name       String
+  klasseName String
+  klasse     Klasse @relation(fields: [klasseName], references: [klasse])
+}
+
