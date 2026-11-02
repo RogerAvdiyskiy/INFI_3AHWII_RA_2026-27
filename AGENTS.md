@@ -1,4 +1,4 @@
-# AGENTS.md — INFI 3AHWII (persönliches Repo)
+﻿# AGENTS.md - INFI 3AHWII (persönliches Repo)
 
 Projekt-Anweisung für Coding-Agenten (opencode). HÜ vom 15.09.2026 (X-Gruppe):
 per `/init` erstellt und an dieses Repo angepasst.
