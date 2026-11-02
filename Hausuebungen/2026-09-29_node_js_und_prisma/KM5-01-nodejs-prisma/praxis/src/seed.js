@@ -1,8 +1,9 @@
-// src/seed.js — Mini-Musik-DB befüllen (idempotent: erst leeren, dann neu).
+// src/seed.js - Mini-Musik-DB befuellen (idempotent: erst leeren, dann neu).
 import { prisma } from "./prisma.js";
 
 async function main() {
-  // Reihenfolge wegen Fremdschlüsseln: Kinder zuerst.
+  // Reihenfolge wegen Fremdschluesseln: Kinder/Verknuepfungen zuerst.
+  await prisma.playlist.deleteMany();
   await prisma.song.deleteMany();
   await prisma.kuenstler.deleteMany();
   await prisma.label.deleteMany();
@@ -18,7 +19,7 @@ async function main() {
       { name: "Nova", labelId: ohrwurm.id },
       { name: "Pixel", labelId: ohrwurm.id },
       { name: "Solveig", labelId: indie.id },
-      { name: "Ohne Label", labelId: null }, // für COUNT(*)-vs-COUNT(col)-Demo
+      { name: "Ohne Label", labelId: null }, // fuer COUNT(*)-vs-COUNT(col)-Demo
     ],
   });
   const nova = await prisma.kuenstler.findFirst({ where: { name: "Nova" } });
@@ -38,9 +39,42 @@ async function main() {
     ],
   });
 
+  const songNordlicht = await prisma.song.findFirst({ where: { titel: "Nordlicht" } });
+  const songPixelstaub = await prisma.song.findFirst({ where: { titel: "Pixelstaub" } });
+  const songRaster = await prisma.song.findFirst({ where: { titel: "Raster" } });
+  const songFunkeln = await prisma.song.findFirst({ where: { titel: "Funkeln" } });
+  const songFjord = await prisma.song.findFirst({ where: { titel: "Fjord" } });
+
+  // Playlists mit N:M-Verknuepfungen anlegen
+  await prisma.playlist.create({
+    data: {
+      name: "Focus Beats",
+      songs: {
+        connect: [
+          { id: songNordlicht.id },
+          { id: songPixelstaub.id },
+          { id: songRaster.id },
+        ],
+      },
+    },
+  });
+
+  await prisma.playlist.create({
+    data: {
+      name: "Late Night",
+      songs: {
+        connect: [
+          { id: songFunkeln.id },
+          { id: songFjord.id },
+        ],
+      },
+    },
+  });
+
   const songs = await prisma.song.count();
   const kuenstler = await prisma.kuenstler.count();
-  console.log(`Seed fertig: ${kuenstler} Künstler, ${songs} Songs.`);
+  const playlists = await prisma.playlist.count();
+  console.log(`Seed fertig: ${kuenstler} Kuenstler, ${songs} Songs, ${playlists} Playlists.`);
 }
 
 main()

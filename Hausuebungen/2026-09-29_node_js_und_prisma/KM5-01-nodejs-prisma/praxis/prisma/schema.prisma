@@ -1,4 +1,4 @@
-// Prisma-Schema — Musik-Streaming-DB (Mini-Ausschnitt, UE 29.09.2026)
+// Prisma-Schema - Musik-Streaming-DB (Mini-Ausschnitt, UE 29.09.2026)
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,9 +22,16 @@ model Kuenstler {
 }
 
 model Song {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   titel       String
   dauerSek    Int
   kuenstlerId Int
-  kuenstler   Kuenstler @relation(fields: [kuenstlerId], references: [id])
+  kuenstler   Kuenstler  @relation(fields: [kuenstlerId], references: [id])
+  playlists   Playlist[]
+}
+
+model Playlist {
+  id    Int    @id @default(autoincrement())
+  name  String
+  songs Song[]
 }

@@ -1,4 +1,4 @@
-// test/queries.test.js — node:test (eingebaut, keine Zusatz-Abhängigkeit).
+// test/queries.test.js - node:test (eingebaut, keine Zusatz-Abhaengigkeit).
 // Voraussetzung: npm run db:seed (nutzt dev.db).
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
@@ -7,31 +7,32 @@ import {
   kuenstlerMitUndOhneLabel,
   labelPaare,
   langeSongs,
+  songsProPlaylist,
   topKuenstler,
   volleLabels,
 } from "../src/queries.js";
 
 before(async () => {
-  assert.ok((await prisma.song.count()) > 0, "Bitte zuerst `npm run db:seed` ausführen.");
+  assert.ok((await prisma.song.count()) > 0, "Bitte zuerst `npm run db:seed` ausfuehren.");
 });
 
 after(async () => {
   await prisma.$disconnect();
 });
 
-test("Top-Künstler liefert absteigend nach Track-Anzahl", async () => {
+test("Top-Kuenstler liefert absteigend nach Track-Anzahl", async () => {
   const top = await topKuenstler();
   assert.equal(top[0].name, "Nova");
   assert.equal(top[0].tracks, 3);
 });
 
-test("COUNT(*) zählt auch Künstler ohne Label", async () => {
+test("COUNT(*) zaehlt auch Kuenstler ohne Label", async () => {
   const { alle, mitLabel } = await kuenstlerMitUndOhneLabel();
   assert.equal(alle, 4);
   assert.equal(mitLabel, 3);
 });
 
-test("Volle Labels: genau Ohrwurm Records hat 2 Künstler", async () => {
+test("Volle Labels: genau Ohrwurm Records hat 2 Kuenstler", async () => {
   const labels = await volleLabels();
   assert.deepEqual(labels, [{ name: "Ohrwurm Records", anzahl: 2 }]);
 });
@@ -42,7 +43,16 @@ test("Label-Paare (Self-JOIN) findet Nova/Pixel", async () => {
   assert.equal(paare[0].label, "Ohrwurm Records");
 });
 
-test("WHERE+HAVING: Nova und Pixel haben je 2+ Songs über 200 s", async () => {
+test("WHERE+HAVING: Nova und Pixel haben je 2+ Songs ueber 200 s", async () => {
   const lang = await langeSongs();
   assert.deepEqual(lang.map((l) => l.name).sort(), ["Nova", "Pixel"]);
+});
+
+test("Songs pro Playlist zaehlt verknuepfte Tracks gemaess HUE-Aufgabe", async () => {
+  const ergebnis = await songsProPlaylist();
+  assert.equal(ergebnis.length, 2);
+  assert.deepEqual(ergebnis, [
+    { name: "Focus Beats", songs: 3 },
+    { name: "Late Night", songs: 2 },
+  ]);
 });

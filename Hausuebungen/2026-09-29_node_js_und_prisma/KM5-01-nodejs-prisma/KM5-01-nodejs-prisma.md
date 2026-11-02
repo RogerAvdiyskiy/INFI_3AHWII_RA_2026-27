@@ -1,16 +1,16 @@
-# Node.js + Prisma 7 (SQLite) — UE „Rep &amp; ORM-Einstieg"
+﻿# Node.js + Prisma 7 (SQLite) - UE „Rep &amp; ORM-Einstieg"
 
-Lesson: `lesson.html` im selben Ordner — Node/Prisma-7-Einstieg für die DB-Werkzeugkette
+Lesson: `lesson.html` im selben Ordner - Node/Prisma-7-Einstieg für die DB-Werkzeugkette
 (Schema, Migration, Driver Adapter) und die fünf Diagnose-Queries als Prisma-API.
 - Erklärung · Vergleichstabelle SQL↔Prisma · 8 Quizze · Aufgabe am Lesson-Ende
 - Lauffähiges Referenzprojekt: `praxis/` (`npm run run`, `npm test`)
 
 ## Aufgabe
 
-1. Vorhersage zu Query 1 / `COUNT(*)` vs. `COUNT(labelId)` — vor dem Ausführen notieren.
+1. Vorhersage zu Query 1 / `COUNT(*)` vs. `COUNT(labelId)` - vor dem Ausführen notieren.
 2. Setup wiederholen; `npm run run` + `npm test` grün (Screenshot).
 3. Model `Playlist` (N:M zu `Song`) + Query „Songs pro Playlist".
-4. Reflexion (5–6 Sätze): Prisma vs. SQL, `$queryRaw`-Fluchtweg.
+4. Reflexion (5-6 Sätze): Prisma vs. SQL, `$queryRaw`-Fluchtweg.
 
 Abgabe wie im Klassen-Repo vereinbart (Projekt-Commit + Markdown).
 

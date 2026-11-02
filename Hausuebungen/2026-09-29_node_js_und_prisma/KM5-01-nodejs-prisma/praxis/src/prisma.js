@@ -1,4 +1,4 @@
-// src/prisma.js — EIN PrismaClient für das ganze Projekt.
+﻿// src/prisma.js - EIN PrismaClient für das ganze Projekt.
 // Prisma 7 braucht zwingend einen Driver Adapter (kein Rust-Engine-Binary mehr).
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";

@@ -1,4 +1,4 @@
-# Praxis-Scaffold — Node.js + Prisma 7 + SQLite
+﻿# Praxis-Scaffold - Node.js + Prisma 7 + SQLite
 
 Lauffähiges Referenzprojekt zur Prepared Lesson **KM5-01** (UE „Rep & ORM-Einstieg").
 Bewusst **nur** für die DB-Werkzeugkette: Der Kurs bleibt bei Deno/TypeScript; Node
@@ -20,13 +20,13 @@ npm run db:seed                  # Mini-Musik-DB befüllen
 > auf, damit der Client sofort existiert.
 
 > **Wichtig:** Prisma **immer auf `@7` pinnen**. `npm i prisma` (ohne Version) zieht
-> aktuell die 8.0.0-RC — genau die Falle aus der Stunde vom 22.09.
+> aktuell die 8.0.0-RC - genau die Falle aus der Stunde vom 22.09.
 
 ## Ausführen
 
 ```bash
 npm run run     # die 5 Diagnose-Queries über die Prisma-API
-npm test        # node:test — 5 Tests gegen den Seed
+npm test        # node:test - 5 Tests gegen den Seed
 ```
 
 ## Dateien
@@ -51,5 +51,5 @@ const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
 export const prisma = new PrismaClient({ adapter });
 ```
 
-Unter Node ist `better-sqlite3` ein gewöhnliches natives Modul — kein Deno-Sonderweg
+Unter Node ist `better-sqlite3` ein gewöhnliches natives Modul - kein Deno-Sonderweg
 mehr. Genau darum dieser Wechsel.
