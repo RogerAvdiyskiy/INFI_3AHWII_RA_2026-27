@@ -1,4 +1,4 @@
--- ============================================================================
+﻿-- ============================================================================
 -- HÜ vom 22.09.2026 (UE 1): 5 Auffrischungs-Queries auf der Musik-DB
 -- Stellung: GRG-INFI/3ahwii/lessons/0001-wiederholung-diagnose.html §4
 -- ("genau diese 5 Auffrischungs-Queries"), Semesterplan UE 1.
@@ -46,7 +46,7 @@ HAVING COUNT(*) > 1;
 -- --- Q4: COUNT(*) vs. COUNT(label_id) ----------------------------------------
 -- Beantwortet: Wie viele Künstler gibt es, und wie viele haben ein Label?
 -- Erklärung in einem Satz: COUNT(*) zählt alle 6 Zeilen, COUNT(label_id) nur die
--- 5 Zeilen mit Wert — Frei hat kein Label (NULL), darum ist die Differenz 1.
+-- 5 Zeilen mit Wert - Frei hat kein Label (NULL), darum ist die Differenz 1.
 SELECT
   COUNT(*) AS alle,
   COUNT(label_id) AS mit_label

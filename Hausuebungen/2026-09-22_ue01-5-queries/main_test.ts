@@ -1,4 +1,4 @@
-// main_test.ts — HÜ vom 22.09.2026: alle 5 Queries gegen den Seed prüfen.
+﻿// main_test.ts - HÜ vom 22.09.2026: alle 5 Queries gegen den Seed prüfen.
 // Eigenständig: Seed wird in eine Memory-DB geladen, keine Datei nötig.
 // Start im Ordner: deno task test
 import { assertEquals } from "@std/assert";

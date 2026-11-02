@@ -1,4 +1,4 @@
--- seed.sql — vereinfachte Musik-Streaming-DB zur HÜ vom 22.09.2026 (UE 1).
+﻿-- seed.sql - vereinfachte Musik-Streaming-DB zur HÜ vom 22.09.2026 (UE 1).
 -- Übernommen aus GRG-INFI/3ahwii/2026-09-29_rep-ohne-node/seed-musik-mini.sql
 -- (Teilausschnitt der Dauerbeispiel-DB; Schema-Namen passend zu lessons/0001).
 -- Laufen lassen mit: sqlite3 musik.db < seed.sql (PowerShell: Get-Content seed.sql -Raw | sqlite3 musik.db)

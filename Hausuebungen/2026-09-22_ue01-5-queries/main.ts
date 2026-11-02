@@ -1,4 +1,4 @@
-// main.ts — HÜ vom 22.09.2026: 5 Queries auf frischer DB ausführen und zeigen.
+﻿// main.ts - HÜ vom 22.09.2026: 5 Queries auf frischer DB ausführen und zeigen.
 // Nur Deno + node:sqlite, kein Node, kein npm:, kein node_modules
 // (nodeModulesDir: "none", siehe deno.json).
 // Start im Ordner: deno task run
