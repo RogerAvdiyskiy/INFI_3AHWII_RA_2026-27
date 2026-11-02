@@ -1,20 +1,20 @@
-// src/seed.js — Befüllen der normalisierten 3NF-Tabellen (idempotent: leeren -> befüllen)
+// src/seed.js - Befuellen der normalisierten 3NF-Tabellen (idempotent: leeren -> befuellen)
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { prisma } from "./prisma.js";
 
 export async function seed() {
-  // 1. Zuerst abhängige Kindtabellen leeren (wegen Foreign Key Constraints)
+  // Reihenfolge beachten wegen Fremdschluessel-Constraints (Kind-Tabellen zuerst leeren)
   await prisma.bestellposition.deleteMany();
   await prisma.bestellung.deleteMany();
   await prisma.track.deleteMany();
   await prisma.plz.deleteMany();
-
   await prisma.konto.deleteMany();
   await prisma.bank.deleteMany();
-
   await prisma.schueler.deleteMany();
   await prisma.klasse.deleteMany();
 
-  // 2. PLZ anlegen (3NF-Faktentabelle)
+  // 1. PLZ-Stammdaten (3NF: Ort haengt ausschliesslich an der PLZ)
   await prisma.plz.createMany({
     data: [
       { plz: "1020", ort: "Wien" },
@@ -23,7 +23,7 @@ export async function seed() {
     ],
   });
 
-  // 3. Tracks anlegen (2NF-Entität)
+  // 2. Track-Katalog (2NF: Titel & Dauer haengen voll vom eigenen PK track_id ab)
   await prisma.track.createMany({
     data: [
       { id: 1, titel: "Silent Lines", dauerSek: 215 },
@@ -32,7 +32,7 @@ export async function seed() {
     ],
   });
 
-  // 4. Bestellungen anlegen
+  // 3. Bestellungen (Kopfdaten: referenzieren PLZ per FK)
   await prisma.bestellung.createMany({
     data: [
       { bestellNr: 101, kunde: "Auer", plz: "1020" },
@@ -41,7 +41,7 @@ export async function seed() {
     ],
   });
 
-  // 5. Bestellpositionen anlegen (1NF: atomare Zeilen; 2NF: zusammengesetzter Key)
+  // 4. Bestellpositionen (1NF: atomare Einzelpositionen, zusammengesetzter PK)
   await prisma.bestellposition.createMany({
     data: [
       { bestellNr: 101, trackId: 1, menge: 1 },
@@ -52,7 +52,7 @@ export async function seed() {
     ],
   });
 
-  // 6. Bank & Konto (Quiz 1)
+  // 5. Quiz 1: Bank & Konto (3NF: Bankname haengt an BLZ, nicht an IBAN)
   await prisma.bank.createMany({
     data: [
       { blz: "12000", bankname: "Bank Austria" },
@@ -69,7 +69,7 @@ export async function seed() {
     ],
   });
 
-  // 7. Klasse & Schüler (Quiz 2)
+  // 6. Quiz 2: Klasse & Schueler (3NF: Klassensprecher haengt an Klasse, nicht an MatrNr)
   await prisma.klasse.createMany({
     data: [
       { klasse: "3AHWII", klassensprecher: "David Demir" },
@@ -86,13 +86,15 @@ export async function seed() {
     ],
   });
 
-  console.log("Seed erfolgreich durchgeführt: Alle 3NF-Tabellen befüllt.");
+  console.log("Seed erfolgreich durchgefuehrt: Alle 3NF-Tabellen befuellt.");
 }
 
-import { fileURLToPath } from "node:url";
+const isDirectRun = Boolean(
+  process.argv[1] &&
+  fileURLToPath(import.meta.url).toLowerCase() === path.resolve(process.argv[1]).toLowerCase()
+);
 
-const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
-if (isDirectRun || !process.argv[1].includes("test")) {
+if (isDirectRun) {
   seed()
     .then(() => prisma.$disconnect())
     .catch(async (e) => {

@@ -1,4 +1,4 @@
-// demo_test.ts — Mini-Tests zu den drei Anomalien (Deno, ohne Node).
+﻿// demo_test.ts - Mini-Tests zu den drei Anomalien (Deno, ohne Node).
 // Laufen mit:  deno task test
 import { assertEquals } from "@std/assert";
 import { DatabaseSync } from "node:sqlite";

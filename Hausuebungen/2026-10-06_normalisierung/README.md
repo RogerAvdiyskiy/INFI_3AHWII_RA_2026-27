@@ -1,24 +1,24 @@
-# HÜ vom 06.10.2026 — Normalisierung 1NF–3NF (mit Prisma 7 & SQLite)
+# HUE vom 06.10.2026 - Normalisierung 1NF-3NF (mit Prisma 7 & SQLite)
 
-**Klasse:** 3AHWII (X-Gruppe) · **Fach:** INFI (KM5, WS 2026/27)  
+**Klasse:** 3AHWII (X-Gruppe) * **Fach:** INFI (KM5, WS 2026/27)  
 **Stellung im Semester:** `GRG-INFI/3ahwii/README.md` (Eintrag 2026-10-06 Normalformen) & `unterricht/KM5-02-normalisierung/hausaufgabe.md`  
-**Besondere Anweisung:** *„mit prisma!!"* (vollständige Modellierung & Verifikation über Prisma 7 ORM)
+**Besondere Anweisung:** *"mit prisma!!"* (vollstaendige Modellierung & Verifikation ueber Prisma 7 ORM)
 
 ---
 
-## 📁 Projektstruktur
+## Projektstruktur
 
 ```
 Hausuebungen/2026-10-06_normalisierung/
-├── README.md                 # Vollständige Ausarbeitung & theoretische Begründung
+├── README.md                 # Vollstaendige Ausarbeitung & theoretische Begruendung
 ├── schema.sql                # Normalisierte Tabellen in 3NF (reines SQLite DDL)
 ├── seed.sql                  # Beispieldaten (mindestens 3 Zeilen pro Tabelle)
 ├── queries.sql               # Rekonstruktions-Queries (JOIN) & Konsistenznachweis
-├── deno.json                 # Deno Task-Runner (kein npm für Deno-Teil)
+├── deno.json                 # Deno Task-Runner (kein npm fuer Deno-Teil)
 ├── demo.ts                   # Konsolen-Demo der 1NF-, 2NF- und 3NF-Anomalien
-├── demo_test.ts              # 4 Deno-Tests für die Anomalien und Fixes
+├── demo_test.ts              # 4 Deno-Tests fuer die Anomalien und Fixes
 ├── KM5-02-normalisierung/    # Kopie der Unterrichtsunterlagen (Lesson, Hausaufgabe)
-└── praxis/                   # Vollständiges Prisma 7 Projekt ("mit prisma!!")
+└── praxis/                   # Vollstaendiges Prisma 7 Projekt ("mit prisma!!")
     ├── package.json          # Node.js ESM-Setup mit Prisma 7 Scripts
     ├── prisma7.config.ts     # Prisma 7 Konfiguration mit Driver-Adapter-URL
     ├── .env                  # DATABASE_URL="file:./dev.db"
@@ -29,7 +29,7 @@ Hausuebungen/2026-10-06_normalisierung/
     ├── src/
     │   ├── prisma.js         # Initialisierung des PrismaClient mit better-sqlite3
     │   ├── seed.js           # Idempotentes Seeden aller 3NF-Modelle
-    │   └── queries.js        # Relationale Abfragen (include) & Konsistenzprüfung
+    │   └── queries.js        # Relationale Abfragen (include) & Konsistenzpruefung
     └── test/
         └── normalisierung.test.js # 7 automatische Unit-Tests (node:test)
 ```
@@ -42,94 +42,143 @@ Hausuebungen/2026-10-06_normalisierung/
 
 Betrachtet wird die Tabelle `bestellung_denorm(bestell_nr, kunde, plz, ort)` bzw. die um Bestellpositionen erweiterte Lesson-Variante `bestellung_denorm(bestell_nr, kunde, tracks, plz, ort)`.
 
-| Attribut / Spalte | Verletzte Normalform | Begründung & Ursache |
+| Attribut / Spalte | Verletzte Normalform | Begruendung & Ursache |
 | :--- | :--- | :--- |
-| **`tracks`** *(falls Liste)* | **1NF** (Atomarität) | Enthält eine kommagetrennte Liste (z. B. `'1, 2, 3'`) oder Wiederholgruppen (`track1, track2`). Dadurch ist der Inhalt **nicht atomar (unteilbar)**. Eine gezielte Suche nach einem Track (`WHERE tracks = 2`) schlägt fehl; Integritätsprüfungen sind unmöglich. |
-| **`bestell_nr`** (PK) | *keine* | Primärschlüssel der Entität Bestellung. |
-| **`kunde`** | *keine* | Hängt voll funktional direkt vom Primärschlüssel `bestell_nr` ab (`bestell_nr → kunde`). |
-| **`plz`** | *keine* | Beschreibt die Lieferadresse der Bestellung (`bestell_nr → plz`). |
-| **`ort`** | **3NF** (Transitivität) | **Verletzt die 3. Normalform.** Es gilt die funktionale Abhängigkeitskette: <br>`bestell_nr → plz` und `plz → ort`. <br>`ort` hängt funktionell von der Postleitzahl ab (`plz → ort`) und nicht direkt von `bestell_nr`. Da `plz` ein Nichtschlüsselattribut ist, handelt es sich um eine **transitive Abhängigkeit über einen Nichtschlüssel**. |
+| **`tracks`** *(falls Liste)* | **1NF** (Atomaritaet) | Enthaelt eine kommagetrennte Liste (z. B. `'1, 2, 3'`) oder Wiederholgruppen (`track1, track2`). Dadurch ist der Inhalt **nicht atomar (unteilbar)**. Eine gezielte Suche nach einem Track (`WHERE tracks = 2`) schlaegt fehl; Integritaetspruefungen sind unmoeglich. |
+| **`bestell_nr`** (PK) | *keine* | Primaerschluessel der Entitaet Bestellung. |
+| **`kunde`** | *keine* | Haengt voll funktional direkt vom Primaerschluessel `bestell_nr` ab (`bestell_nr -> kunde`). |
+| **`plz`** | *keine* | Beschreibt die Lieferadresse der Bestellung (`bestell_nr -> plz`). |
+| **`ort`** | **3NF** (Transitivitaet) | **Verletzt die 3. Normalform.** Es gilt die funktionale Abhaengigkeitskette: <br>`bestell_nr -> plz` und `plz -> ort`. <br>`ort` haengt funktionell von der Postleitzahl ab (`plz -> ort`) und nicht direkt von `bestell_nr`. Da `plz` ein Nichtschluesselattribut ist, handelt es sich um eine **transitive Abhaengigkeit ueber einen Nichtschluessel**. |
 
 ### Warum ist die 2NF bei `bestellung_denorm` kein Thema?
 
-> **Merksatz:** Die 2. Normalform ist **nur bei einem zusammengesetzten Primärschlüssel** relevant.  
-> Hat eine Tabelle einen einfachen Schlüssel aus nur einer Spalte (wie `bestell_nr`), existieren keine echten Teilmengen des Schlüssels. Eine partielle Abhängigkeit von einem „Schlüsselteil" ist logisch unmöglich — **die 2NF ist somit automatisch erfüllt**.  
-> Erst wenn wir im Zuge der 1NF-Auflösung eine Kindtabelle mit zusammengesetztem Schlüssel wie `bestellposition(bestell_nr, track_id, track_titel)` anlegen, wird die 2NF schlagend, weil `track_titel` nur von `track_id` abhängt.
+> **Merksatz:** Die 2. Normalform ist **nur bei einem zusammengesetzten Primaerschluessel** relevant.  
+> Hat eine Tabelle einen einfachen Schluessel aus nur einer Spalte (wie `bestell_nr`), existieren keine echten Teilmengen des Schluessels. Eine partielle Abhaengigkeit von einem "Schluesselteil" ist logisch unmoeglich - **die 2NF ist somit automatisch erfuellt**.  
+> Erst wenn wir im Zuge der 1NF-Aufloesung eine Kindtabelle mit zusammengesetztem Schluessel wie `bestellposition(bestell_nr, track_id, track_titel)` anlegen, wird die 2NF schlagend, weil `track_titel` nur von `track_id` abhaengt.
 
 ### Die drei klassischen Schema-Anomalien von `bestellung_denorm`:
 
-1. **Änderungs-Anomalie (Update Anomaly):**  
-   Bekommt die PLZ `1020` einen neuen Namen (z. B. `Wien-Leopoldstadt`), müssen *alle* Zeilen mit dieser PLZ geändert werden. Vergisst man eine Zeile, entstehen widersprüchliche Datenzustände.
-2. **Einfüge-Anomalie (Insert Anomaly):**  
-   Eine neu vergebene Postleitzahl (z. B. `8010` für `Graz`) kann nicht im System hinterlegt werden, solange kein Kunde eine Bestellung mit dieser PLZ getätigt hat (oder man müsste verbotene Dummy-Bestellungen mit NULL-Werten anlegen).
-3. **Lösch-Anomalie (Delete Anomaly):**  
-   Löscht man die einzige Bestellung für Linz (`4020`), wird gleichzeitig das Wissen vernichtet, dass `4020` die Stadt `Linz` ist.
+1. **Aenderungs-Anomalie (Update Anomaly):**  
+   Bekommt die PLZ `1020` einen neuen Namen (z. B. `Wien-Leopoldstadt`), muessen *alle* Zeilen mit dieser PLZ geaendert werden. Vergisst man eine Zeile, entstehen widerspruechliche Datenzustaende.
+2. **Einfuege-Anomalie (Insert Anomaly):**  
+   Eine neu vergebene Postleitzahl (z. B. `8010` fuer `Graz`) kann nicht im System hinterlegt werden, solange kein Kunde eine Bestellung mit dieser PLZ getaetigt hat (oder man muesste verbotene Dummy-Bestellungen mit NULL-Werten anlegen).
+3. **Loesch-Anomalie (Delete Anomaly):**  
+   Loescht man die einzige Bestellung fuer Linz (`4020`), wird gleichzeitig das Wissen vernichtet, dass `4020` die Stadt `Linz` ist.
 
 ---
 
-## 2. Zerlegen bis 3NF (Schrittweise mit Abhängigkeitspfeilen)
+## 2. Zerlegen bis 3NF (Schrittweise mit Abhaengigkeitspfeilen)
 
 ### Ausgangsrelation (0NF / Denormalisiert)
-$$\text{bestellung\_denorm}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{tracks}, \text{plz}, \text{ort})$$
+
+```math
+\text{bestellung\_denorm}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{tracks}, \text{plz}, \text{ort})
+```
 
 ---
 
-### Schritt 1: Überführung in die 1. Normalform (1NF)
+### Schritt 1: Ueberfuehrung in die 1. Normalform (1NF)
 * **Regel:** Jedes Attribut muss atomare (unteilbare) Werte enthalten; keine Listen in Zellen, keine Wiederholgruppen als Spalten.
-* **Aktion:** Das zusammengesetzte Listenattribut `tracks` wird in eine eigenständige Positionstabelle mit Positionsnummer bzw. Track-ID aufgelöst.
+* **Aktion:** Das zusammengesetzte Listenattribut `tracks` wird in eine eigenstaendige Positionstabelle mit Positionsnummer bzw. Track-ID aufgeloest.
 * **Relationen:**
-  $$\text{bestellung\_1nf}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{plz}, \text{ort})$$
-  $$\text{bestellposition\_1nf}(\underline{\text{bestell\_nr}, \text{track\_id}}, \text{track\_titel}, \text{dauer\_sek}, \text{menge})$$
-* **Abhängigkeiten (Pfeile):**
-  $$\text{bestell\_nr} \rightarrow \text{kunde}, \text{plz}, \text{ort}$$
-  $$(\text{bestell\_nr}, \text{track\_id}) \rightarrow \text{menge}$$
-  $$\text{track\_id} \rightarrow \text{track\_titel}, \text{dauer\_sek} \quad \text{\textbf{(Problem für 2NF!)}}$$
+
+```math
+\text{bestellung\_1nf}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{plz}, \text{ort})
+```
+
+```math
+\text{bestellposition\_1nf}(\underline{\text{bestell\_nr}, \text{track\_id}}, \text{track\_titel}, \text{dauer\_sek}, \text{menge})
+```
+
+* **Abhaengigkeiten (Pfeile):**
+
+```math
+\text{bestell\_nr} \rightarrow \text{kunde}, \text{plz}, \text{ort}
+```
+
+```math
+(\text{bestell\_nr}, \text{track\_id}) \rightarrow \text{menge}
+```
+
+```math
+\text{track\_id} \rightarrow \text{track\_titel}, \text{dauer\_sek} \quad \text{(Problem fuer 2NF!)}
+```
 
 ---
 
-### Schritt 2: Überführung in die 2. Normalform (2NF)
-* **Regel:** Kein Nichtschlüsselattribut darf von einem *Teil* eines zusammengesetzten Primärschlüssels abhängen (jede funktionale Abhängigkeit muss voll sein).
+### Schritt 2: Ueberfuehrung in die 2. Normalform (2NF)
+* **Regel:** Kein Nichtschluesselattribut darf von einem *Teil* eines zusammengesetzten Primaerschluessels abhaengen (jede funktionale Abhaengigkeit muss voll sein).
 * **Aktion:**
-  * In $\text{bestellposition\_1nf}$ ist der Primärschlüssel $(\text{bestell\_nr}, \text{track\_id})$.
-  * Die Attribute $\text{track\_titel}$ und $\text{dauer\_sek}$ hängen **nur vom Teilschlüssel** $\text{track\_id}$ ab, unabhängig davon, in welcher Bestellung sie gekauft werden.
-  * Wir lagern die Entität $\text{track}$ in eine eigene Tabelle aus.
+  * In `bestellposition_1nf` ist der Primaerschluessel `(bestell_nr, track_id)`.
+  * Die Attribute `track_titel` und `dauer_sek` haengen **nur vom Teilschluessel** `track_id` ab, unabhaengig davon, in welcher Bestellung sie gekauft werden.
+  * Wir lagern die Entitaet `track` in eine eigene Tabelle aus.
 * **Relationen:**
-  $$\text{track}(\underline{\text{track\_id}}, \text{titel}, \text{dauer\_sek})$$
-  $$\text{bestellposition}(\underline{\text{bestell\_nr}, \text{track\_id}}, \text{menge})$$
-* **Abhängigkeiten (Pfeile):**
-  $$\text{track\_id} \rightarrow \text{titel}, \text{dauer\_sek} \quad \text{(voll abhängig vom eigenen PK)}$$
-  $$(\text{bestell\_nr}, \text{track\_id}) \rightarrow \text{menge} \quad \text{(voll abhängig vom zusammengesetzten PK)}$$
+
+```math
+\text{track}(\underline{\text{track\_id}}, \text{titel}, \text{dauer\_sek})
+```
+
+```math
+\text{bestellposition}(\underline{\text{bestell\_nr}, \text{track\_id}}, \text{menge})
+```
+
+* **Abhaengigkeiten (Pfeile):**
+
+```math
+\text{track\_id} \rightarrow \text{titel}, \text{dauer\_sek} \quad \text{(voll abhaengig vom eigenen PK)}
+```
+
+```math
+(\text{bestell\_nr}, \text{track\_id}) \rightarrow \text{menge} \quad \text{(voll abhaengig vom zusammengesetzten PK)}
+```
 
 ---
 
-### Schritt 3: Überführung in die 3. Normalform (3NF)
-* **Regel:** Kein Nichtschlüsselattribut darf *transitiv* (über einen Nichtschlüssel) vom Primärschlüssel abhängen („hängt vom Schlüssel ab, vom ganzen Schlüssel und von nichts als dem Schlüssel").
+### Schritt 3: Ueberfuehrung in die 3. Normalform (3NF)
+* **Regel:** Kein Nichtschluesselattribut darf *transitiv* (ueber einen Nichtschluessel) vom Primaerschluessel abhaengen ("haengt vom Schluessel ab, vom ganzen Schluessel und von nichts als dem Schluessel").
 * **Aktion:**
-  * In $\text{bestellung\_1nf}$ gilt: $\text{bestell\_nr} \rightarrow \text{plz}$ und $\text{plz} \rightarrow \text{ort}$.
-  * $\text{ort}$ ist transitiv abhängig: $\text{bestell\_nr} \rightarrow \text{plz} \rightarrow \text{ort}$.
-  * Wir lagern die Zuordnung $\text{plz} \rightarrow \text{ort}$ in eine eigene Faktentabelle aus und verweisen per Fremdschlüssel.
+  * In `bestellung_1nf` gilt: `bestell_nr -> plz` und `plz -> ort`.
+  * `ort` ist transitiv abhaengig: `bestell_nr -> plz -> ort`.
+  * Wir lagern die Zuordnung `plz -> ort` in eine eigene Faktentabelle aus und verweisen per Fremdschluessel.
 * **Relationen:**
-  $$\text{plz}(\underline{\text{plz}}, \text{ort})$$
-  $$\text{bestellung}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{plz})$$
-* **Abhängigkeiten (Pfeile):**
-  $$\text{plz} \rightarrow \text{ort} \quad \text{(isoliert in eigener Tabelle)}$$
-  $$\text{bestell\_nr} \rightarrow \text{kunde}, \text{plz} \quad \text{(direkt am Schlüssel)}$$
+
+```math
+\text{plz}(\underline{\text{plz}}, \text{ort})
+```
+
+```math
+\text{bestellung}(\underline{\text{bestell\_nr}}, \text{kunde}, \text{plz})
+```
+
+* **Abhaengigkeiten (Pfeile):**
+
+```math
+\text{plz} \rightarrow \text{ort} \quad \text{(isoliert in eigener Tabelle)}
+```
+
+```math
+\text{bestell\_nr} \rightarrow \text{kunde}, \text{plz} \quad \text{(direkt am Schluessel)}
+```
 
 ### Endergebnis des normalisierten Schemas (3NF):
-1. **`plz`** $(\underline{\text{plz}}, \text{ort})$
-2. **`bestellung`** $(\underline{\text{bestell\_nr}}, \text{kunde}, \text{plz}^\uparrow)$
-3. **`track`** $(\underline{\text{track\_id}}, \text{titel}, \text{dauer\_sek})$
-4. **`bestellposition`** $(\underline{\text{bestell\_nr}^\uparrow, \text{track\_id}^\uparrow}, \text{menge})$
+1. **`plz`** `(plz PK, ort)`
+2. **`bestellung`** `(bestell_nr PK, kunde, plz FK)`
+3. **`track`** `(track_id PK, titel, dauer_sek)`
+4. **`bestellposition`** `(bestell_nr FK, track_id FK, menge)` mit zusammengesetztem PK `(bestell_nr, track_id)`
 
 ---
 
 ## 3. Zwei eigene Quiz-Tabellen zerlegen
 
-Aus den Quizfragen der Lesson wurden die folgenden beiden klassischen Denormalisierungs-Fälle ausgewählt und in 3NF überführt:
+Aus den Quizfragen der Lesson wurden die folgenden beiden klassischen Denormalisierungs-Faelle ausgewaehlt und in 3NF ueberfuehrt:
 
 ### 1. Quiz-Tabelle 1: `konto_denorm` (Bankverbindung)
 * **Ausgangssituation:** `konto_denorm(iban PK, inhaber, blz, bankname)`
-* **Transitive Kette:** $\text{iban} \rightarrow \text{blz} \rightarrow \text{bankname}$ (`bankname` hängt an der Bankleitzahl `blz`, nicht am Girokonto).
+* **Transitive Kette:**
+```math
+\text{iban} \rightarrow \text{blz} \rightarrow \text{bankname}
+```
+(`bankname` haengt an der Bankleitzahl `blz`, nicht am Girokonto).
 * **3NF-Zerlegung:**
   1. `bank(blz PK, bankname)`
   2. `konto(iban PK, inhaber, blz FK)`
@@ -149,7 +198,7 @@ CREATE TABLE konto (
 );
 ```
 
-#### Beispieldatensätze (je 3 Zeilen):
+#### Beispieldatensaetze (je 3 Zeilen):
 ```sql
 INSERT INTO bank (blz, bankname) VALUES
   ('12000', 'Bank Austria'),
@@ -166,7 +215,11 @@ INSERT INTO konto (iban, inhaber, blz) VALUES
 
 ### 2. Quiz-Tabelle 2: `schueler_denorm` (Schule & Klassen)
 * **Ausgangssituation:** `schueler_denorm(matr_nr PK, name, klasse, klassensprecher)`
-* **Transitive Kette:** $\text{matr\_nr} \rightarrow \text{klasse} \rightarrow \text{klassensprecher}$ (Der Klassensprecher ist eine Eigenschaft der Klasse, nicht des einzelnen Schülers).
+* **Transitive Kette:**
+```math
+\text{matr\_nr} \rightarrow \text{klasse} \rightarrow \text{klassensprecher}
+```
+(Der Klassensprecher ist eine Eigenschaft der Klasse, nicht des einzelnen Schuelers).
 * **3NF-Zerlegung:**
   1. `klasse(klasse PK, klassensprecher)`
   2. `schueler(matr_nr PK, name, klasse FK)`
@@ -186,7 +239,7 @@ CREATE TABLE schueler (
 );
 ```
 
-#### Beispieldatensätze (je 3 Zeilen):
+#### Beispieldatensaetze (je 3 Zeilen):
 ```sql
 INSERT INTO klasse (klasse, klassensprecher) VALUES
   ('3AHWII', 'David Demir'),
@@ -203,7 +256,7 @@ INSERT INTO schueler (matr_nr, name, klasse) VALUES
 
 ## 4. Interleaving: Rekonstruktion per JOIN
 
-Um zu beweisen, dass die Normalisierung verlustfrei war, rekonstruiert folgende SQL-Abfrage die vollständige Ausgangsansicht der Bestellungen:
+Um zu beweisen, dass die Normalisierung verlustfrei war, rekonstruiert folgende SQL-Abfrage die vollstaendige Ausgangsansicht der Bestellungen:
 
 ```sql
 SELECT 
@@ -235,9 +288,9 @@ bestell_nr  kunde  plz   ort   track_id  track_titel   dauer_sek  menge
 
 ---
 
-## 5. Nachweis der Demo-Ausführung (`deno task demo`)
+## 5. Nachweis der Demo-Ausfuehrung (`deno task demo`)
 
-Die Demo aus `Beispielprojekte/km5-02-normalisierung/` wurde erfolgreich ausgeführt:
+Die Demo aus `Beispielprojekte/km5-02-normalisierung/` wurde erfolgreich ausgefuehrt:
 
 ### Konsolenprotokoll `deno task demo`:
 ```text
@@ -245,9 +298,9 @@ Die Demo aus `Beispielprojekte/km5-02-normalisierung/` wurde erfolgreich ausgef�
 Task demo deno run --allow-read --allow-write demo.ts
 1NF: WHERE hobbys = 'Schwimmen' findet 0 Zeilen (die Zelle ist eine Liste).
 1NF-Fix: eine Zeile pro Wert -> 1 Treffer.
-2NF: song_id 1 hat 2 verschiedene Titel (Titel hängt nur an song_id).
+2NF: song_id 1 hat 2 verschiedene Titel (Titel haengt nur an song_id).
 2NF-Fix: der Titel steht 1 Mal fuer song_id 1.
-3NF: PLZ 1020 hat 2 verschiedene Orte (Ort hängt an PLZ).
+3NF: PLZ 1020 hat 2 verschiedene Orte (Ort haengt an PLZ).
 ```
 
 ### Konsolenprotokoll `deno task test`:
@@ -257,8 +310,8 @@ Task test deno test demo_test.ts
 Check demo_test.ts
 running 4 tests from ./demo_test.ts
 1NF: Liste in der Zelle bricht die Gleichheitssuche ... ok (0ms)
-2NF: partielle Abhängigkeit erlaubt widersprüchliche Titel ... ok (0ms)
-3NF: transitive Abhängigkeit erlaubt widersprüchliche Orte ... ok (0ms)
+2NF: partielle Abhaengigkeit erlaubt widerspruechliche Titel ... ok (0ms)
+3NF: transitive Abhaengigkeit erlaubt widerspruechliche Orte ... ok (0ms)
 3NF-Fix: PLZ -> Ort steht genau einmal ... ok (0ms)
 
 ok | 4 passed | 0 failed (8ms)
@@ -266,9 +319,9 @@ ok | 4 passed | 0 failed (8ms)
 
 ---
 
-## 6. Das Prisma 7-Projekt („mit prisma!!")
+## 6. Das Prisma 7-Projekt ("mit prisma!!")
 
-Im Unterordner `praxis/` wurde die Aufgabe gemäß Unterrichtsvorgabe mit dem modernen ORM **Prisma 7** umgesetzt.
+Im Unterordner `praxis/` wurde die Aufgabe gemaess Unterrichtsvorgabe mit dem modernen ORM **Prisma 7** umgesetzt.
 
 ### 1. Modellierung in `prisma/schema.prisma`
 ```prisma
@@ -338,7 +391,7 @@ model Schueler {
 }
 ```
 
-### 2. Seeden & Ausführen der relationalen Abfragen
+### 2. Seeden & Ausfuehren der relationalen Abfragen
 Befehle im Ordner `praxis/`:
 * `npm run db:seed`
 * `npm run run`
@@ -356,7 +409,7 @@ Befehle im Ordner `praxis/`:
 │ 4       │ 103       │ 'Cevik' │ '4020' │ 'Linz' │ 2       │ 'Night Ferry'  │ 240      │ 3     │
 └─────────┴───────────┴─────────┴────────┴────────┴─────────┴────────────────┴──────────┴───────┘
 
-=== 2) Quiz 1: Konten & Banken (3NF aufgelöst) ===
+=== 2) Quiz 1: Konten & Banken (3NF aufgeloest) ===
 ┌─────────┬────────────────────────┬───────────────┬─────────┬────────────────┐
 │ (index) │ iban                   │ inhaber       │ blz     │ bankname       │
 ├─────────┼────────────────────────┼───────────────┼─────────┼────────────────┤
@@ -365,7 +418,7 @@ Befehle im Ordner `praxis/`:
 │ 2       │ 'AT892011100098765432' │ 'Bernd Beck'  │ '20111' │ 'Erste Bank'   │
 └─────────┴────────────────────────┴───────────────┴─────────┴────────────────┘
 
-=== 3) Quiz 2: Schüler & Klassen (3NF aufgelöst) ===
+=== 3) Quiz 2: Schueler & Klassen (3NF aufgeloest) ===
 ┌─────────┬────────┬───────────────┬──────────┬─────────────────┐
 │ (index) │ matrNr │ name          │ klasse   │ klassensprecher │
 ├─────────┼────────┼───────────────┼──────────┼─────────────────┤
@@ -374,7 +427,7 @@ Befehle im Ordner `praxis/`:
 │ 2       │ 1003   │ 'Clara Cevik' │ '3BHWII' │ 'Elena Egger'   │
 └─────────┴────────┴───────────────┴──────────┴─────────────────┘
 
-=== 4) 3NF-Konsistenzprobe (Update auf PLZ 1020) ===
+=== 4) 3NF-Konsistenzprobe (Update auf PLZ 1020 mit Rollback) ===
 ┌─────────┬───────────┬────────┬────────┬─────────────────────┐
 │ (index) │ bestellNr │ kunde  │ plz    │ ort                 │
 ├─────────┼───────────┼────────┼────────┼─────────────────────┤
@@ -383,22 +436,23 @@ Befehle im Ordner `praxis/`:
 └─────────┴───────────┴────────┴────────┴─────────────────────┘
 ```
 
+> **Hinweis zur DB-Idempotenz:** Die Funktion `demonstriere3nfKonsistenz()` stellt den urspruenglichen Ort ('Wien') im `finally`-Block garantiert wieder her. Dadurch bleibt die Testdatenbank voellig unberuehrt und Folge-Tests bleiben idempotent.
+
 ### 3. Automatisierte Tests (`npm test`)
-7 Unit-Tests mit `node:test` belegen die fehlerfreie Normalisierung:
+7 Unit-Tests mit `node:test` belegen die fehlerfreie Normalisierung sowie die Idempotenz der Konsistenz-Probe:
 ```text
 > km5-02-normalisierung-praxis@1.0.0 test
 > node --test
 
-Seed erfolgreich durchgeführt: Alle 3NF-Tabellen befüllt.
-✔ 1NF: Jede Bestellposition ist eine atomare Zeile (keine Listen im Attribut) (208ms)
-✔ 2NF: Track existiert unabhängig von Bestellungen (keine partielle Abhängigkeit) (4ms)
-✔ 3NF: Ort hängt nur an PLZ (keine transitive Abhängigkeit in Bestellung) (2ms)
-✔ Interleaving: Vollständige Rekonstruktion aller Bestellungen mit JOIN (6ms)
+Seed erfolgreich durchgefuehrt: Alle 3NF-Tabellen befuellt.
+✔ 1NF: Jede Bestellposition ist eine atomare Zeile (keine Listen im Attribut) (177ms)
+✔ 2NF: Track existiert unabhaengig von Bestellungen (keine partielle Abhaengigkeit) (3ms)
+✔ 3NF: Ort haengt nur an PLZ (keine transitive Abhaengigkeit in Bestellung) (1ms)
+✔ Interleaving: Vollstaendige Rekonstruktion aller Bestellungen mit JOIN (8ms)
 ✔ Quiz 1: Bank & Konto sind sauber 3NF-normalisiert (1ms)
-✔ Quiz 2: Klasse & Schüler sind sauber 3NF-normalisiert (1ms)
-✔ Anomaliefreiheit: Update auf PLZ aktualisiert alle verknüpften Bestellungen konsistent (11ms)
+✔ Quiz 2: Klasse & Schueler sind sauber 3NF-normalisiert (1ms)
+✔ Anomaliefreiheit & Idempotenz: Update zeigt Konsistenz und hinterlaesst saubere DB (20ms)
 ℹ tests 7
-ℹ suites 0
 ℹ pass 7
 ℹ fail 0
 ```
@@ -426,4 +480,3 @@ npm run db:seed
 npm run run
 npm test
 ```
-

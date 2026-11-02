@@ -1,4 +1,4 @@
--- queries.sql — Abfragen auf den normalisierten 3NF-Tabellen
+﻿-- queries.sql - Abfragen auf den normalisierten 3NF-Tabellen
 -- Ausführen mit: sqlite3 normalisierung-3nf.db < queries.sql
 
 PRAGMA foreign_keys = ON;

@@ -1,4 +1,4 @@
--- seed.sql — Beispieldaten (mindestens 3 Zeilen pro Tabelle) für die 3NF-Tabellen
+﻿-- seed.sql - Beispieldaten (mindestens 3 Zeilen pro Tabelle) für die 3NF-Tabellen
 -- Ausführen mit: sqlite3 normalisierung-3nf.db < seed.sql
 
 PRAGMA foreign_keys = ON;
@@ -30,7 +30,7 @@ INSERT INTO bestellposition (bestell_nr, track_id, menge) VALUES
   (103, 2, 3);
 
 ----------------------------------------------------------------------
--- Teil 3: Beispieldaten für Quiz-Tabelle 1 (Bank / Konto) — je 3 Zeilen
+-- Teil 3: Beispieldaten für Quiz-Tabelle 1 (Bank / Konto) - je 3 Zeilen
 ----------------------------------------------------------------------
 
 INSERT INTO bank (blz, bankname) VALUES
@@ -44,7 +44,7 @@ INSERT INTO konto (iban, inhaber, blz) VALUES
   ('AT422011100055443322', 'Clara Cevik', '20111');
 
 ----------------------------------------------------------------------
--- Teil 3: Beispieldaten für Quiz-Tabelle 2 (Klasse / Schüler) — je 3 Zeilen
+-- Teil 3: Beispieldaten für Quiz-Tabelle 2 (Klasse / Schüler) - je 3 Zeilen
 ----------------------------------------------------------------------
 
 INSERT INTO klasse (klasse, klassensprecher) VALUES
@@ -58,7 +58,7 @@ INSERT INTO schueler (matr_nr, name, klasse) VALUES
   (1003, 'Clara Cevik', '3BHWII');
 
 ----------------------------------------------------------------------
--- Bonus: Beispieldaten für Quiz-Tabelle 3 (Label / Album) — je 3 Zeilen
+-- Bonus: Beispieldaten für Quiz-Tabelle 3 (Label / Album) - je 3 Zeilen
 ----------------------------------------------------------------------
 
 INSERT INTO label (name, adresse) VALUES

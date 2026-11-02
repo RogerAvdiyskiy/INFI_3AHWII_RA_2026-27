@@ -1,4 +1,4 @@
-// prisma/schema.prisma — Normalisierte 3NF-Modelle zur HÜ KM5-02 (2026-10-06)
+﻿// prisma/schema.prisma - Normalisierte 3NF-Modelle zur HÜ KM5-02 (2026-10-06)
 
 generator client {
   provider = "prisma-client-js"

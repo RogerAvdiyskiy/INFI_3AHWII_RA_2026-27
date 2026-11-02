@@ -1,35 +1,38 @@
-// src/queries.js — Relationale Abfragen und 3NF-Verifikation mit Prisma Client
+// src/queries.js - 3NF-Queries und Konsistenz-Demonstration
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { prisma } from "./prisma.js";
 
-// 1. Interleaving-Abfrage: Rekonstruktion der Bestellung inklusive Tracks und Ort
+// 1. Rekonstruktion: Alle Bestellungen mit Positionen, Tracks und PLZ/Ort (JOIN)
 export async function rekonstruiereBestellungen() {
-  const bestellungen = await prisma.bestellung.findMany({
+  const positionen = await prisma.bestellposition.findMany({
     include: {
-      plzRel: true,
-      positionen: {
+      bestellung: {
         include: {
-          track: true,
+          plzRel: true,
         },
       },
+      track: true,
     },
-    orderBy: { bestellNr: "asc" },
+    orderBy: [
+      { bestellNr: "asc" },
+      { trackId: "asc" },
+    ],
   });
 
-  return bestellungen.flatMap((b) =>
-    b.positionen.map((p) => ({
-      bestellNr: b.bestellNr,
-      kunde: b.kunde,
-      plz: b.plz,
-      ort: b.plzRel.ort,
-      trackId: p.trackId,
-      trackTitel: p.track.titel,
-      dauerSek: p.track.dauerSek,
-      menge: p.menge,
-    }))
-  );
+  return positionen.map((p) => ({
+    bestellNr: p.bestellNr,
+    kunde: p.bestellung.kunde,
+    plz: p.bestellung.plz,
+    ort: p.bestellung.plzRel.ort,
+    trackId: p.trackId,
+    trackTitel: p.track.titel,
+    dauerSek: p.track.dauerSek,
+    menge: p.menge,
+  }));
 }
 
-// 2. Quiz 1: Konten mit zugehörigem Banknamen
+// 2. Quiz 1: Konten mit zugehoeriger Bank
 export async function zeigeKontenMitBank() {
   const konten = await prisma.konto.findMany({
     include: { bank: true },
@@ -43,7 +46,7 @@ export async function zeigeKontenMitBank() {
   }));
 }
 
-// 3. Quiz 2: Schüler mit Klassensprecher
+// 3. Quiz 2: Schueler mit Klassensprecher
 export async function zeigeSchuelerMitKlasse() {
   const schueler = await prisma.schueler.findMany({
     include: { klasse: true },
@@ -57,46 +60,60 @@ export async function zeigeSchuelerMitKlasse() {
   }));
 }
 
-// 4. Nachweis 3NF-Konsistenz: Ort an 1 Stelle ändern, alle Bestellungen konsistent
+// 4. Nachweis 3NF-Konsistenz: Ort an 1 Stelle aendern, alle Bestellungen konsistent.
+// Wichtig fuer Idempotenz & saubere DB: Originalzustand wird im finally-Block wiederhergestellt.
 export async function demonstriere3nfKonsistenz() {
-  // Update genau an der Wurzel (in der Plz-Tabelle)
-  await prisma.plz.update({
-    where: { plz: "1020" },
-    data: { ort: "Wien (Hauptstadt)" },
-  });
+  const original = await prisma.plz.findUnique({ where: { plz: "1020" } });
+  try {
+    // Temporaeres Update an der Wurzel (PLZ-Tabelle)
+    await prisma.plz.update({
+      where: { plz: "1020" },
+      data: { ort: "Wien (Hauptstadt)" },
+    });
 
-  // Beide Bestellungen (101 & 102) mit PLZ 1020 abfragen
-  const betroffene = await prisma.bestellung.findMany({
-    where: { plz: "1020" },
-    include: { plzRel: true },
-    orderBy: { bestellNr: "asc" },
-  });
+    // Beide Bestellungen (101 & 102) mit PLZ 1020 abfragen
+    const betroffene = await prisma.bestellung.findMany({
+      where: { plz: "1020" },
+      include: { plzRel: true },
+      orderBy: { bestellNr: "asc" },
+    });
 
-  return betroffene.map((b) => ({
-    bestellNr: b.bestellNr,
-    kunde: b.kunde,
-    plz: b.plz,
-    ort: b.plzRel.ort,
-  }));
+    return betroffene.map((b) => ({
+      bestellNr: b.bestellNr,
+      kunde: b.kunde,
+      plz: b.plz,
+      ort: b.plzRel.ort,
+    }));
+  } finally {
+    // Sauberes Ruecksetzen: Hinterlaesst keine Seiteneffekte in der Datenbank
+    if (original) {
+      await prisma.plz.update({
+        where: { plz: "1020" },
+        data: { ort: original.ort },
+      });
+    }
+  }
 }
 
 async function main() {
   console.log("=== 1) Rekonstruierte Bestellungen (JOIN via Prisma include) ===");
   console.table(await rekonstruiereBestellungen());
 
-  console.log("\n=== 2) Quiz 1: Konten & Banken (3NF aufgelöst) ===");
+  console.log("\n=== 2) Quiz 1: Konten & Banken (3NF aufgeloest) ===");
   console.table(await zeigeKontenMitBank());
 
-  console.log("\n=== 3) Quiz 2: Schüler & Klassen (3NF aufgelöst) ===");
+  console.log("\n=== 3) Quiz 2: Schueler & Klassen (3NF aufgeloest) ===");
   console.table(await zeigeSchuelerMitKlasse());
 
-  console.log("\n=== 4) 3NF-Konsistenzprobe (Update auf PLZ 1020) ===");
+  console.log("\n=== 4) 3NF-Konsistenzprobe (Update auf PLZ 1020 mit Rollback) ===");
   console.table(await demonstriere3nfKonsistenz());
 }
 
-import { fileURLToPath } from "node:url";
+const isDirectRun = Boolean(
+  process.argv[1] &&
+  fileURLToPath(import.meta.url).toLowerCase() === path.resolve(process.argv[1]).toLowerCase()
+);
 
-const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isDirectRun) {
   main()
     .then(() => prisma.$disconnect())

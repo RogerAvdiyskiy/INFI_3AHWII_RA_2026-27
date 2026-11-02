@@ -1,4 +1,4 @@
--- schema.sql — Normalisierte 3NF-Tabellen zur HÜ KM5-02 (2026-10-06)
+﻿-- schema.sql - Normalisierte 3NF-Tabellen zur HÜ KM5-02 (2026-10-06)
 -- Ausführen mit: sqlite3 normalisierung-3nf.db < schema.sql
 
 PRAGMA foreign_keys = ON;

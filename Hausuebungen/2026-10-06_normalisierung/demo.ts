@@ -1,4 +1,4 @@
-// demo.ts — Normalisierungs-Anomalien zum Anfassen (1NF, 2NF, 3NF).
+﻿// demo.ts - Normalisierungs-Anomalien zum Anfassen (1NF, 2NF, 3NF).
 // Nur Deno + node:sqlite, kein Node, kein npm:, kein node_modules.
 // Laufen mit:  deno task demo
 import { DatabaseSync } from "node:sqlite";
